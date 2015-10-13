@@ -3,7 +3,7 @@ class Account(object):
 	position = []
 	settlement = []
 
-	def __init__(self, sim_params = None,strg = None, data_all = None, commission = Commission()):
+	def __init__(self, start, end, universe, capital_base, refresh_rate):
 		self.sim_params =  sim_params 	# Backtesting Parameter
 		self.universe_all =   	# Stock_pool_all
 		self.universe =   		# Stock poll based on everyday
@@ -20,16 +20,16 @@ class Account(object):
 		self.commission = commission		# commission standard
 
 
-	def order(amount, direction, symbol):
+	def order(amount, symbol):
 
 		deal_price = closing_price(data,symbol) + direction * commission #closing price, matrix in numpy
 
-		if direction = -1 && avail_position[symbol] >= amount:
+		if amount > 0 && avail_position[symbol] >= amount:
 			# log: selling deal
 			avail_position[symbol] -= amount
 			position[symbol] -=amount
 			cash += deal_price * amount
-		elif direction = 1 && cash >= deal_price * amount:
+		elif amount < 0 && cash >= deal_price * amount:
 			# log: buying deal
 			position[symbol] += amount
 			cash = cash - deal_price * amount
@@ -40,8 +40,6 @@ class Account(object):
 
 
 	def transact(date,last_date):
-
-
 
 	# def handle_data(self,data): 
 	# 	# execute strg.handle_data(self.data)
