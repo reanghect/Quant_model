@@ -20,6 +20,6 @@ fre  = 'd'									# trading frequency
 
 accounts = ac.Account(start, universe, capital_base)
 
-Test_report = backtest(start, end, benchmark, accounts, strategy,fre)
+Test_report = bt.backtest(start, end, accounts, factor)
 
 performance(Test_report)

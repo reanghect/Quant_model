@@ -27,8 +27,12 @@ def Trading_day(start, end):
 
 def strategy(date, factor):
 
+	
+
 def commission(amount):
 	if amount >0:
 		return 0.001
 	else:
 		return -0.002
+
+

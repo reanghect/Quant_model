@@ -13,7 +13,7 @@ class Account(object):
 
 	def order(date, amount, symbol):
 
-		deal_price = closing_price(date,symbol) + fc.commission(amount) #closing price, matrix in numpy
+		deal_price = fc.closing_price(date,symbol) + fc.commission(amount) #closing price, matrix in numpy
 
 		if amount > 0 && avail_position[symbol] >= amount:
 			# log: selling deal
@@ -31,13 +31,8 @@ class Account(object):
 
 
 	def transact(date,preTradeDate):
-		
-
-	# def handle_data(self,data): 
-	# 	# execute strg.handle_data(self.data)
-	# 	# execute transact(self.data)
-	# 	# judge self.blotter
-	# 	# update self.blotter and self.position
+		# update position available position and cash
+		# return daily position
 
 	# def __get_daily_symbol_history(self,symbol, time_range):
 	# 	# get daily history on given stock
