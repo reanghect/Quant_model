@@ -1,28 +1,19 @@
 class Account(object):
 
-	position = []
-	settlement = []
+	referencePrice = fc.closing_price(preTradeDate,universe)						# reference price: closing price in lastday
+	Total_market_value = sum([referencePrice[l] * position[l] for l in universe])
 
-	def __init__(self, start, end, universe, capital_base, refresh_rate):
-		self.sim_params =  sim_params 	# Backtesting Parameter
-		self.universe_all =   	# Stock_pool_all
-		self.universe =   		# Stock poll based on everyday
-		self.current_date = 	# current date
-		self.days_counter = 	# counting the trading day
-		self.trading_days = 	# All the trading day list in backtesting
-		self.position = 		# cash and security position
-		self.cash = capital_base			# cash position
-		self.secpos = 0			# security position,dic, key=stock_code, value=position
-		self.avail_secpos = 0	# securities available to sell
-		self.referencePrice = None	# reference price: closing price in lastday
-		self.referenceReturn = None	# reference return: return in last day
-		self.blotter = None			# bid-ask list
-		self.commission = commission		# commission standard
+	def __init__(self, start, universe, capital_base):
+		
+		self.date =  start 								# Backtesting date
+		self.universe =  fc.stock_scan(universe) 		# Stock poll based on everyday
+		self.cash = capital_base						# cash position
+		self.position = []								# security position,dic, key=stock_code, amount=position
+		self.avail_secpos = []							# securities available to sell,dict
 
+	def order(date, amount, symbol):
 
-	def order(amount, symbol):
-
-		deal_price = closing_price(data,symbol) + direction * commission #closing price, matrix in numpy
+		deal_price = closing_price(date,symbol) + fc.commission(amount) #closing price, matrix in numpy
 
 		if amount > 0 && avail_position[symbol] >= amount:
 			# log: selling deal
@@ -39,7 +30,8 @@ class Account(object):
 			pass
 
 
-	def transact(date,last_date):
+	def transact(date,preTradeDate):
+		
 
 	# def handle_data(self,data): 
 	# 	# execute strg.handle_data(self.data)

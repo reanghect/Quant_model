@@ -16,10 +16,9 @@ benchmark = 'HS300'							# Select index as benchmark
 universe = fc.stock_scan('HS300')			# stock pool (list)
 capital_base = 100000						# starting capital
 fre  = 'd'									# trading frequency
-refresh_rate = 1
 
 
-accounts = ac.Account(start, universe, capital_base, refresh_rate)
+accounts = ac.Account(start, universe, capital_base)
 
 Test_report = backtest(start, end, benchmark, accounts, strategy,fre)
 
