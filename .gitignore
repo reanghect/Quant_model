@@ -1,2 +1,4 @@
 .idea/
+data_import.log
+__pycache__/
 .gitignore

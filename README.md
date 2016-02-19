@@ -1,1 +1,1 @@
-This project is for backtesting and paper trading for Chinese Financial Markets.
+This project is for back-testing and paper trading for Chinese Financial Markets.

@@ -6,7 +6,7 @@ from peewee import *
 __author__ = 'Will Chen'
 
 
-db = MySQLDatabase("qss_hist", host="192.168.70.23", port=3306, user="qss", passwd="Abc123")
+db = MySQLDatabase("qss", host="192.168.70.154", port=3306, user="will", passwd="Abc123")
 
 
 class BaseModel(Model):
@@ -23,8 +23,7 @@ class Price(BaseModel):
     low = DecimalField(decimal_places=2, null=True)
     open = DecimalField(decimal_places=2, null=True)
     close = DecimalField(decimal_places=2, null=True)
-    adj_close = DecimalField(decimal_places=2, null=True)
-    volume = IntegerField(null=True)
+    volume = FloatField(null=True)
 
     class Meta:
         # multiple column index or multiple indexes
@@ -39,15 +38,20 @@ class TradingDate(BaseModel):
 
 class StockInfo(BaseModel):
     id = PrimaryKeyField()
-    ticker = CharField(20)
+    ticker = CharField(20, unique=True)
     market_id = CharField(20)
     asset_class = CharField(20)
-    short_name = CharField(50)
+    short_name = CharField(50, unique=True)
     currency = CharField(10)
     sector = CharField(20)
 
     class Meta:
         indexes = ((('ticker', 'market_id'), True),)
+
+
+class Account(BaseModel):
+    id = PrimaryKeyField()
+    account_number = CharField(20)
 
 
 class OrderInfo(BaseModel):
@@ -102,11 +106,5 @@ class DailyAsset(BaseModel):
     date = DateField()
     total_market_value = DecimalField(decimal_places=2)
 
-
-class Account(BaseModel):
-    id = PrimaryKeyField()
-    account_number = CharField(20)
-
-
 db.connect()
-db.create_tables([Price], safe=True)
+db.create_tables([Price, TradingDate, StockInfo, Account, OrderInfo, Position, DailyAsset, Cash, Settlement], safe=True)
