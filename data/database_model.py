@@ -6,7 +6,7 @@ from peewee import *
 __author__ = 'Will Chen'
 
 
-db = MySQLDatabase("qss", host="192.168.70.154", port=3306, user="will", passwd="Abc123")
+db = MySQLDatabase("qss", host="192.168.70.202", port=3306, user="will", passwd="Abc123")
 
 
 class BaseModel(Model):
@@ -25,9 +25,9 @@ class Price(BaseModel):
     close = DecimalField(decimal_places=2, null=True)
     volume = FloatField(null=True)
 
-    class Meta:
-        # multiple column index or multiple indexes
-        indexes = ((('trading_date', 'ticker', 'exchId'), True),)
+    # class Meta:
+    #     # multiple column index or multiple indexes
+    #     indexes = ((('trading_date', 'ticker', 'exchId'), True),)
 
 
 class TradingDate(BaseModel):
@@ -45,8 +45,8 @@ class StockInfo(BaseModel):
     currency = CharField(10)
     sector = CharField(20)
 
-    class Meta:
-        indexes = ((('ticker', 'market_id'), True),)
+    # class Meta:
+    #     indexes = ((('ticker', 'market_id'), True),)
 
 
 class Account(BaseModel):
@@ -106,5 +106,14 @@ class DailyAsset(BaseModel):
     date = DateField()
     total_market_value = DecimalField(decimal_places=2)
 
-db.connect()
-db.create_tables([Price, TradingDate, StockInfo, Account, OrderInfo, Position, DailyAsset, Cash, Settlement], safe=True)
+
+def create_tables():
+    db.connect()
+    db.create_tables([Price, TradingDate, StockInfo, Account, OrderInfo, Position, DailyAsset, Cash, Settlement], True)
+    db.close()
+
+
+def drop_tables():
+    db.connect()
+    db.drop_tables([Price, TradingDate, StockInfo, Account, OrderInfo, Position, DailyAsset, Cash, Settlement], True)
+    db.close()
