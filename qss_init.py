@@ -2,13 +2,17 @@
 # -*- coding: utf-8 -*-
 
 from data import database_model as db
-import logging
+
+import logging.config
+
 __author__ = 'Will Chen'
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s', datefmt='%a, %d %b %Y %H:%M:%S')
+CONF_LOG = "/conf/logger.conf"
+logging.config.fileConfig(CONF_LOG)
+logger = logging.getLogger()
 
-logging.info("Welcome to QSS. System is preparing...")
+logger.info("Welcome to QSS. System is preparing...")
 db.drop_tables()
-logging.info("Cleaned all tables, ready to begin...")
+logger.info("Cleaned all tables, ready to begin...")
 db.create_tables()
-logging.info("Database Initialized. Ready to importing historical data")
+logger.info("Database Initialized. Ready to importing historical data")
