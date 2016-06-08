@@ -14,7 +14,7 @@ class BaseModel(Model):
         database = db
 
 
-class Price(BaseModel):
+class DailyPrice(BaseModel):
     id = PrimaryKeyField()
     trading_date = DateField()
     ticker = CharField(20)
@@ -28,6 +28,18 @@ class Price(BaseModel):
     # class Meta:
     #     # multiple column index or multiple indexes
     #     indexes = ((('trading_date', 'ticker', 'exchId'), True),)
+
+
+class IntraPrice(BaseModel):
+    id = PrimaryKeyField()
+    time = TimeField()
+    ticker = CharField(20)
+    high = DecimalField(decimal_places=2, null=True)
+    low = DecimalField(decimal_places=2, null=True)
+    open = DecimalField(decimal_places=2, null=True)
+    trade = DecimalField(decimal_places=2, null=True)
+    change_percent = DecimalField(decimal_places=2, null=True)
+    volume = FloatField(null=True)
 
 
 class TradingDate(BaseModel):
@@ -109,11 +121,11 @@ class DailyAsset(BaseModel):
 
 def create_tables():
     db.connect()
-    db.create_tables([Price, TradingDate, StockInfo, Account, OrderInfo, Position, DailyAsset, Cash, Settlement], True)
+    db.create_tables([DailyPrice, TradingDate, StockInfo, Account, OrderInfo, Position, DailyAsset, Cash, Settlement], True)
     db.close()
 
 
 def drop_tables():
     db.connect()
-    db.drop_tables([Price, TradingDate, StockInfo, Account, OrderInfo, Position, DailyAsset, Cash, Settlement], True)
+    db.drop_tables([DailyPrice, TradingDate, StockInfo, Account, OrderInfo, Position, DailyAsset, Cash, Settlement], True)
     db.close()
