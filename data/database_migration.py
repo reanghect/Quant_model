@@ -8,7 +8,18 @@ __author__ = 'Will Chen'
 my_db = MySQLDatabase("qss", host="192.168.70.154", port=3306, user="will", passwd="Abc123")
 migrator = MySQLMigrator(my_db)
 
-migrate(
-    migrator.add_index('StockInfo', ('ticker', 'market_id'), True,),
-    migrator.add_index('Price', ('trading_date', 'ticker', 'exchId'), True,)
-)
+
+def add_index(flag=False):
+    migrate(
+        migrator.add_index('DailyPrice', ('trading_date', 'ticker'), True),
+    )
+    if flag is True:
+        migrate(
+            migrator.add_index('StockInfo', ('ticker', 'market_id'), True),
+        )
+
+
+def remove_index():
+    migrate(
+        migrator.drop_index('DailyPrice', ('trading_date', 'ticker'))
+    )

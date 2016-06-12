@@ -121,11 +121,13 @@ class DailyAsset(BaseModel):
 
 def create_tables():
     db.connect()
-    db.create_tables([DailyPrice, TradingDate, StockInfo, Account, OrderInfo, Position, DailyAsset, Cash, Settlement], True)
+    db.create_tables([DailyPrice, IntraPrice, TradingDate, StockInfo, Account, OrderInfo, Position, DailyAsset,
+                      Cash, Settlement], True)
     db.close()
 
 
 def drop_tables():
     db.connect()
-    db.drop_tables([DailyPrice, TradingDate, StockInfo, Account, OrderInfo, Position, DailyAsset, Cash, Settlement], True)
+    db.drop_tables([DailyPrice, IntraPrice, TradingDate, StockInfo, Account, OrderInfo, Position, DailyAsset,
+                    Cash, Settlement], True)
     db.close()

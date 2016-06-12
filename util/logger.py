@@ -4,7 +4,7 @@ import logging.config
 __author__ = 'Will Chen'
 
 CONF_LOG = "../conf/logger.conf"
-logging.config.fileConfig(CONF_LOG)
+logging.config.fileConfig(CONF_LOG, defaults={'logfilename': 'data.log'})
 
 
 def set_logger(name=None):

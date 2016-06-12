@@ -1,17 +1,14 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import logging
+from util import logger
 from data import data_helper as hp
 
-
+__data_logger = logger.set_logger('data')
 __author__ = 'Will Chen'
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s',
-                    datefmt='%a, %d %b %Y %H:%M:%S', filename='data_import.log', filemode='w')
-
 hp.loading_stock_list()
-logging.info('All ticker info created.')
+__data_logger.info('All ticker info created.')
 
 threads = hp.building_thread()
 for t in threads:
@@ -19,4 +16,4 @@ for t in threads:
     t.start()
 
 t.join()
-logging.info('All price loaded into database')
+__data_logger.info('All price loaded into database')

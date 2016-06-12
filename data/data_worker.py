@@ -3,15 +3,16 @@ from util import logger
 from datetime import datetime
 from data import database_model as db
 from pandas import Series
+from data import database_migration as dm
 
-_data_logger = logger.set_logger("module")
+__module_logger = logger.set_logger("module")
 
 
 def get_new_data():
     try:
         return ts.get_today_all()
     except ConnectionError as e:
-        _data_logger.debug("Can't fetch new data due to Connection Error")
+        __module_logger.debug("Can't fetch new data due to Connection Error")
         print(e)
 
 
@@ -21,16 +22,17 @@ def insert_new_data(new_data):
         db.IntraPrice.create(ticker=new_data.ix[i].code, time=time_stamp, high=new_data.ix[i].high,
                              low=new_data.ix[i].low, open=new_data.ix[i].open, trade=new_data.ix[i].trade,
                              change_percent=new_data.ix[i].changepercent)
-        _data_logger.debug("Insert " + str(time_stamp) + " hourly data into IntroPrice")
+        __module_logger.debug("Insert " + str(time_stamp) + " hourly data into IntroPrice")
 
 
 def clean_intra():
     daily_delete = db.IntraPrice.delete()
     daily_delete.execute()
-    _data_logger.debug("Delete IntraPrice daily")
+    __module_logger.debug("Delete IntraPrice daily")
 
 
 def insert_daily_data():
+    dm.remove_index()
     update_list = db.StockInfo.select(db.StockInfo.ticker)
     today = datetime.today().strftime('%Y-%m-%d')
     for record in update_list:
@@ -40,11 +42,12 @@ def insert_daily_data():
                                  high=float(current.high[0]), low=float(current.low[0]), open=float(current.open[0]),
                                  close=float(current.close[0]), volume=float(current.volume[0]))
         except ConnectionError as e:
-            _data_logger.debug(today + "Can't fetch daily data due to Connection Error")
+            __module_logger.debug(today + "Can't fetch daily data due to Connection Error")
             print(e)
+    dm.add_index()
 
 
-def get_db_price(ticker=None, start=None, end=None, fields=None, table='daily'):
+def get_db_price(table='daily', ticker=None, start=None, end=None, fields=None):
     if table == 'daily':
         raw_data = db.DailyPrice.select(fields)\
             .where(db.DailyPrice.ticker == ticker, start < db.DailyPrice.trading_date < end)\
