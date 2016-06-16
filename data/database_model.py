@@ -6,7 +6,7 @@ from peewee import *
 __author__ = 'Will Chen'
 
 
-db = MySQLDatabase("qss", host="192.168.70.202", port=3306, user="will", passwd="Abc123")
+db = MySQLDatabase("QSS", host="192.168.70.179", port=3306, user="will", passwd="Abc123")
 
 
 class BaseModel(Model):
@@ -18,7 +18,7 @@ class DailyPrice(BaseModel):
     id = PrimaryKeyField()
     trading_date = DateField()
     ticker = CharField(20)
-    exchId = CharField(20)
+    market_id = CharField(20)
     high = DecimalField(decimal_places=2, null=True)
     low = DecimalField(decimal_places=2, null=True)
     open = DecimalField(decimal_places=2, null=True)

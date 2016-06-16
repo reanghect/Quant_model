@@ -45,10 +45,9 @@ def loading_stock_list():
 
 
 def building_thread():
-    stock_sha = db.StockInfo.select(db.StockInfo.ticker).where(db.StockInfo.market_id == 'SHA')
-    stock_sza = db.StockInfo.select(db.StockInfo.ticker).where(db.StockInfo.market_id == 'SZA')
-    stock_oth = db.StockInfo.select(db.StockInfo.ticker)\
-        .where((db.StockInfo.market_id != 'SHA') & (db.StockInfo.market_id != 'SZA'))
+    stock_sha = db.StockInfo.select().where(db.StockInfo.market_id == 'SHA')
+    stock_sza = db.StockInfo.select().where(db.StockInfo.market_id == 'SZA')
+    stock_oth = db.StockInfo.select().where((db.StockInfo.market_id != 'SHA') & (db.StockInfo.market_id != 'SZA'))
     threads = []
     t1 = threading.Thread(target=loading_price, name='Thread_SHA', args=[stock_sha])
     threads.append(t1)

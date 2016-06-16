@@ -3,3 +3,4 @@ data_import.log
 __pycache__/
 .gitignore
 tk.csv
+*.log
