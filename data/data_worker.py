@@ -47,21 +47,25 @@ def insert_daily_data():
     dm.add_index()
 
 
-def get_db_price(table='daily', ticker=None, start=None, end=None, fields=None):
-    if table == 'daily':
-        raw_data = db.DailyPrice.select(fields)\
-            .where(db.DailyPrice.ticker == ticker, start < db.DailyPrice.trading_date < end)\
-            .order_by(db.DailyPrice.trading_date)
-    else:
-        raw_data = db.IntraPrice.select(fields)\
-            .where(db.IntraPrice.ticker == ticker, start < db.IntraPrice.time < end)\
-            .order_by(db.IntraPrice.time)
-
+def get_db_daily_price(fields, ticker=None, start=None, end=None, market=None):
+    table = db.DailyPrice
+    attr = [getattr(table, item) for item in fields]
+    raw_data = table.select(*attr)
+    if ticker is not None:
+        raw_data = raw_data.where(table.ticker << ticker)
+    if start is not None:
+        raw_data = raw_data.where(table.trading_date > start)
+    if end is not None:
+        raw_data = raw_data.where(table.trading_date < end)
+    if market is not None:
+        raw_data = raw_data.where(table.market_id == market)
+    raw_data = raw_data.order_by(table.trading_date)
     price = list()
     index = list()
     for record in raw_data:
-        price.append(record.fields[0])
+        price.append(getattr(record, fields))
         index.append(record.trading_date[0])
+    #     TODO Form a DataFrame  not list
     return Series(price, index=index)
 
 
