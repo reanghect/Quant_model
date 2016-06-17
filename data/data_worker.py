@@ -63,3 +63,10 @@ def get_db_price(table='daily', ticker=None, start=None, end=None, fields=None):
         price.append(record.fields[0])
         index.append(record.trading_date[0])
     return Series(price, index=index)
+
+
+def get_stock_list():
+    l = []
+    for stock in db.StockInfo.select():
+        l.append(stock)
+    return l

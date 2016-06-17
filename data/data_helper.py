@@ -17,18 +17,15 @@ def __match_market(ticker):
         print(ticker)
 
 
-def loading_price(stock_list):
-    for record in stock_list:
-        hist = ts.get_hist_data(code=record.ticker, start='2015-01-01')
-        __data_logger.info(['Price loading for ' + record.ticker + ' begin'])
-        for date in hist.index:
-            db.DailyPrice.create(trading_date=date, ticker=record.ticker, market_id=record.market_id,
-                                 high=float(hist.get_value(date, 'high')), low=float(hist.get_value(date, 'low')),
-                                 open=float(hist.get_value(date, 'open')), close=float(hist.get_value(date, 'close')),
-                                 volume=float(hist.get_value(date, 'volume')))
-        __data_logger.info(["Price Creation for stock " + record.ticker + " completed"])
-    dm.add_index(True)
-    __data_logger.info("Price Creation for one stock exchange completed")
+def loading_price(record):
+    hist = ts.get_hist_data(code=record.ticker, start='2015-01-01')
+    __data_logger.info(['Price loading for ' + record.ticker + ' begin'])
+    for date in hist.index:
+        db.DailyPrice.create(trading_date=date, ticker=record.ticker, market_id=record.market_id,
+                             high=float(hist.get_value(date, 'high')), low=float(hist.get_value(date, 'low')),
+                             open=float(hist.get_value(date, 'open')), close=float(hist.get_value(date, 'close')),
+                             volume=float(hist.get_value(date, 'volume')))
+    __data_logger.info(["Price Creation for stock " + record.ticker + " completed"])
 
 
 def loading_stock_list():
@@ -42,17 +39,3 @@ def loading_stock_list():
         else:
             __data_logger.error('can\'t find exchange name')
     __data_logger.info("Stock Info Creation Completed ")
-
-
-def building_thread():
-    stock_sha = db.StockInfo.select().where(db.StockInfo.market_id == 'SHA')
-    stock_sza = db.StockInfo.select().where(db.StockInfo.market_id == 'SZA')
-    stock_oth = db.StockInfo.select().where((db.StockInfo.market_id != 'SHA') & (db.StockInfo.market_id != 'SZA'))
-    threads = []
-    t1 = threading.Thread(target=loading_price, name='Thread_SHA', args=[stock_sha])
-    threads.append(t1)
-    t2 = threading.Thread(target=loading_price, name='Thread_SZA', args=[stock_sza])
-    threads.append(t2)
-    t3 = threading.Thread(target=loading_price, name='Thread_OTH', args=[stock_oth])
-    threads.append(t3)
-    return threads

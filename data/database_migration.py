@@ -5,7 +5,7 @@ from playhouse.migrate import *
 
 __author__ = 'Will Chen'
 
-my_db = MySQLDatabase("qss", host="192.168.70.154", port=3306, user="will", passwd="Abc123")
+my_db = MySQLDatabase("QSS", host="192.168.79.179", port=3306, user="will", passwd="Abc123")
 migrator = MySQLMigrator(my_db)
 
 
