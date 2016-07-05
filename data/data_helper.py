@@ -1,8 +1,9 @@
 import tushare as ts
-from data import database_model as db
-from data import database_migration as dm
-import threading
+
+from asset import database_model as db
 from util import logger
+import requests
+from datetime import datetime
 
 __data_logger = logger.set_logger('data')
 
@@ -18,7 +19,9 @@ def __match_market(ticker):
 
 
 def loading_price(record):
-    hist = ts.get_hist_data(code=record.ticker, start='2015-01-01')
+    today = datetime.datetime.strftime(datetime.datetime.now(),'%Y-%m-%d')
+    # yesterday = datetime.datetime.strftime(datetime.datetime.now()-datetime.timedelta(1), '%Y-%m-%d')
+    hist = ts.get_h_data(record.ticker, start='2014-01-01', end=today, autype='hfq')
     __data_logger.info(['Price loading for ' + record.ticker + ' begin'])
     for date in hist.index:
         db.DailyPrice.create(trading_date=date, ticker=record.ticker, market_id=record.market_id,
@@ -39,3 +42,30 @@ def loading_stock_list():
         else:
             __data_logger.error('can\'t find exchange name')
     __data_logger.info("Stock Info Creation Completed ")
+
+
+def get_calendar():
+    domain = 'https://api.wmcloud.com:443/data/v1'
+    path = '/api/master/getTradeCal.json'
+    token = 'd97a4a4de8b42c7f270cd2ae478b476b4f05e9aecc4674d741fb7d09af8359e6'
+    payload = {'field': None, 'exchangeCD': 'XSHG,XSHE', 'beginDate': '20140101'}
+    response = requests.get(domain+path, params=payload, headers={"Authorization": "Bearer " + token})
+    calen = response.json()
+    if calen['retCode'] == 1:
+        return calen['data']
+    else:
+        raise ConnectionError
+
+
+def loading_calendar():
+    try:
+        calendar = get_calendar()
+        for each in calendar:
+            trading_date = datetime.strptime(each['calendarDate'], '%Y-%m-%d')
+            prev_date = datetime.strptime(each['prevTradeDate'], '%Y-%m-%d')
+            db.TradingDate.create(date=trading_date, exchangeCD=each['exchangeCD'], isMonthEnd=bool(each['isMonthEnd']),
+                                  isOpen=bool(each['isOpen']), isQuarterEnd=bool(each['isQuarterEnd']),
+                                  isWeekEnd=bool(each['isWeekEnd']), isYearEnd=bool(each['isYearEnd']),
+                                  prevTradeDate=prev_date)
+    except ConnectionError as e:
+        __data_logger.error(e)

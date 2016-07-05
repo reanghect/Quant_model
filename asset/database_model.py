@@ -2,11 +2,19 @@
 # -*- coding: utf-8 -*-
 
 from peewee import *
+import configparser
 
-__author__ = 'Will Chen'
+cf = configparser.ConfigParser()
+cf.read('database.conf')
+
+s = cf.sections()
+db_host = cf.get("db", "db_host")
+db_port = cf.get("db", "db_port")
+db_user = cf.get("db", "db_user")
+db_pass = cf.get("db", "db_pass")
 
 
-db = MySQLDatabase("QSS", host="192.168.70.179", port=3306, user="will", passwd="Abc123")
+db = MySQLDatabase("QSS", host=db_host, port=db_port, user=db_user, passwd=db_pass)
 
 
 class BaseModel(Model):
@@ -44,8 +52,14 @@ class IntraPrice(BaseModel):
 
 class TradingDate(BaseModel):
     id = PrimaryKeyField()
-    date = DateField(unique=True)
-    isOpen = CharField(20)
+    date = DateField()
+    exchangeCD = CharField(20)
+    isOpen = BooleanField()
+    isMonthEnd = BooleanField()
+    isQuarterEnd = BooleanField()
+    isWeekEnd = BooleanField()
+    isYearEnd = BooleanField()
+    prevTradeDate = DateField()
 
 
 class StockInfo(BaseModel):

@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from data import database_model as db
+from asset import database_model as db
 from util import logger
 
 _main_logger = logger.set_logger()

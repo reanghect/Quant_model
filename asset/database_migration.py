@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 from playhouse.migrate import *
+from . import database_model as db
+
 
 __author__ = 'Will Chen'
-
-my_db = MySQLDatabase("QSS", host="192.168.79.179", port=3306, user="will", passwd="Abc123")
-migrator = MySQLMigrator(my_db)
+migrator = MySQLMigrator(db.db)
 
 
 def add_index(flag=False):
