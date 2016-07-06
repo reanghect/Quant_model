@@ -3,13 +3,15 @@
 
 from peewee import *
 import configparser
+import os
 
 cf = configparser.ConfigParser()
-cf.read('database.conf')
+conf_path = os.path.join(os.path.dirname(__file__), '../conf/database.conf')
+cf.read(conf_path)
 
 s = cf.sections()
 db_host = cf.get("db", "db_host")
-db_port = cf.get("db", "db_port")
+db_port = cf.getint("db", "db_port")
 db_user = cf.get("db", "db_user")
 db_pass = cf.get("db", "db_pass")
 
@@ -66,6 +68,7 @@ class StockInfo(BaseModel):
     id = PrimaryKeyField()
     ticker = CharField(20, unique=True)
     market_id = CharField(20)
+    exchangeCD = CharField(20)
     asset_class = CharField(20)
     short_name = CharField(50, unique=True)
     currency = CharField(10)
