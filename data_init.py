@@ -3,7 +3,7 @@
 import multiprocessing
 from util import logger
 from data import data_helper as hp
-from data import data_worker as dw
+from data import daily_data_worker as dw
 
 __data_logger = logger.set_logger('data')
 __author__ = 'Will Chen'

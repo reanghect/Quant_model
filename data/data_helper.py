@@ -34,7 +34,8 @@ def loading_price(record):
     hist = ts.get_h_data(record.ticker, start='2014-01-01', end=today, autype='hfq', retry_count=10, pause=3)
     __data_logger.info(['Price loading for ' + record.ticker + ' begin'])
     for date in hist.index:
-        db.DailyPrice.create(trading_date=date, ticker=record.ticker, market_id=record.market_id,
+        str_date = date.strftime('%Y-%m-%d')
+        db.DailyPrice.create(trading_date=str_date, ticker=record.ticker, market_id=record.market_id,
                              high=float(hist.get_value(date, 'high')), low=float(hist.get_value(date, 'low')),
                              open=float(hist.get_value(date, 'open')), close=float(hist.get_value(date, 'close')),
                              volume=float(hist.get_value(date, 'volume')))
