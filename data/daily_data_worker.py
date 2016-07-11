@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import tushare as ts
-from pandas import Series
+from pandas import DataFrame
 
 from asset import database_model as db
 from asset import database_migration as dm
@@ -33,7 +33,20 @@ def insert_daily_data():
 
 
 def get_db_daily_price(fields, ticker=None, start=None, end=None, market=None, exchange=None):
+    """
+    :param fields: (String) open, close, high, low, volume
+    :param ticker: (Tuple or String) Ex: ('600848', '000302')
+    :param start: (String) YYYY-MM-DD
+    :param end: (String) YYYY-MM-DD
+    :param market: (String or Tuple) Ex: ('SHA', 'SHB')
+            Market Dictionary: {'600': 'SHA', '601': 'SHA', '603': 'SHA', '900': 'SHB',
+                                '000': 'SZA', '001': 'SZA', '002': 'SZZX', '300': 'SZCY', '200': 'SZB'}
+    :param exchange: (String) 'XSHE' or 'XSHG'
+    :return: (DataFrame) order by market, ticker and trading_date;
+    """
     table = db.DailyPrice
+    if 'trading_date' not in fields:
+        fields.append('trading_date')
     attr = [getattr(table, item) for item in fields]
     raw_data = table.select(*attr)
     if ticker is not None:
@@ -43,17 +56,17 @@ def get_db_daily_price(fields, ticker=None, start=None, end=None, market=None, e
     if end is not None:
         raw_data = raw_data.where(table.trading_date < end)
     if market is not None:
-        raw_data = raw_data.where(table.market_id == market)
+        raw_data = raw_data.where(table.market_id << market)
     if exchange is not None:
-        raw_data = raw_data.join(db.StockInfo).where(db.StockInfo.exchangeCD == exchange)
-    raw_data = raw_data.order_by(table.trading_date)
-    price = list()
-    index = list()
+        ticker_list = db.StockInfo.select(db.StockInfo.ticker).where(db.StockInfo.exchangeCD == exchange)
+        raw_data = raw_data.where(table.ticker << ticker_list)
+    raw_data = raw_data.order_by(table.market_id, table.ticker, table.trading_date).tuples()
+    rows = list()
     for record in raw_data:
-        price.append(getattr(record, fields))
-        index.append(record.trading_date[0])
-    #     TODO Form a DataFrame  not list
-    return Series(price, index=index)
+        rows.append(record)
+    df = DataFrame(rows, columns=fields)
+    df.set_index('trading_date')
+    return df
 
 
 def get_stock_list():
