@@ -34,7 +34,7 @@ def insert_daily_data():
 
 def get_db_daily_price(fields, ticker=None, start=None, end=None, market=None, exchange=None):
     """
-    :param fields: (String) open, close, high, low, volume
+    :param fields: (List or String) open, close, high, low, volume
     :param ticker: (Tuple or String) Ex: ('600848', '000302')
     :param start: (String) YYYY-MM-DD
     :param end: (String) YYYY-MM-DD
@@ -45,18 +45,32 @@ def get_db_daily_price(fields, ticker=None, start=None, end=None, market=None, e
     :return: (DataFrame) order by market, ticker and trading_date;
     """
     table = db.DailyPrice
+    if type(fields) is str:
+        fields = [fields]
     if 'trading_date' not in fields:
         fields.append('trading_date')
     attr = [getattr(table, item) for item in fields]
     raw_data = table.select(*attr)
     if ticker is not None:
-        raw_data = raw_data.where(table.ticker << ticker)
+        if type(ticker) is tuple:
+            raw_data = raw_data.where(table.ticker << ticker)
+        elif type(ticker) is str:
+            raw_data = raw_data.where(table.ticker == ticker)
+        else:
+            __module_logger.error('Ticker Parameter wrong' + ticker)
+            raise ValueError
     if start is not None:
         raw_data = raw_data.where(table.trading_date > start)
     if end is not None:
         raw_data = raw_data.where(table.trading_date < end)
     if market is not None:
-        raw_data = raw_data.where(table.market_id << market)
+        if type(market) is tuple:
+            raw_data = raw_data.where(table.market_id << market)
+        elif type(market) is str:
+            raw_data = raw_data.where(table.market_id == market)
+        else:
+            __module_logger.error('Market Parameter Wrong' + market)
+            raise ValueError
     if exchange is not None:
         ticker_list = db.StockInfo.select(db.StockInfo.ticker).where(db.StockInfo.exchangeCD == exchange)
         raw_data = raw_data.where(table.ticker << ticker_list)
@@ -65,7 +79,7 @@ def get_db_daily_price(fields, ticker=None, start=None, end=None, market=None, e
     for record in raw_data:
         rows.append(record)
     df = DataFrame(rows, columns=fields)
-    df.set_index('trading_date')
+    df = df.set_index('trading_date')
     return df
 
 
