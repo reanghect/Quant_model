@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import tushare as ts
-from pandas import DataFrame
+from pandas import DataFrame, concat
 
 from asset import database_model as db
 from asset import database_migration as dm
@@ -34,27 +34,30 @@ def insert_daily_data():
 
 def get_db_daily_price(fields, ticker=None, start=None, end=None, market=None, exchange=None):
     """
-    :param fields: (List or String) open, close, high, low, volume
-    :param ticker: (Tuple or String) Ex: ('600848', '000302')
+    :param fields: (List, Tuple, or String) open, close, high, low, volume
+    :param ticker: (List, Tuple or String) Ex: ('600848', '000302')
     :param start: (String) YYYY-MM-DD
     :param end: (String) YYYY-MM-DD
-    :param market: (String or Tuple) Ex: ('SHA', 'SHB')
+    :param market: (List, Tuple, or String) Ex: ('SHA', 'SHB')
             Market Dictionary: {'600': 'SHA', '601': 'SHA', '603': 'SHA', '900': 'SHB',
                                 '000': 'SZA', '001': 'SZA', '002': 'SZZX', '300': 'SZCY', '200': 'SZB'}
     :param exchange: (String) 'XSHE' or 'XSHG'
-    :return: (DataFrame) order by market, ticker and trading_date;
+    :return: (DataFrame) order by trading_date, tickers are in columns;
     """
     table = db.DailyPrice
-    if type(fields) is str:
-        fields = [fields]
-    if 'trading_date' not in fields:
-        fields.append('trading_date')
+    if isinstance(fields, str):
+        fields = {fields}
+    else:
+        fields = set(fields)
+    fields.add('trading_date')
+    fields.add('ticker')
     attr = [getattr(table, item) for item in fields]
     raw_data = table.select(*attr)
     if ticker is not None:
-        if type(ticker) is tuple:
-            raw_data = raw_data.where(table.ticker << ticker)
-        elif type(ticker) is str:
+        if isinstance(ticker, (list, tuple)):
+            t_ticker = tuple(ticker)
+            raw_data = raw_data.where(table.ticker << t_ticker)
+        elif isinstance(ticker, str):
             raw_data = raw_data.where(table.ticker == ticker)
         else:
             __module_logger.error('Ticker Parameter wrong' + ticker)
@@ -64,9 +67,10 @@ def get_db_daily_price(fields, ticker=None, start=None, end=None, market=None, e
     if end is not None:
         raw_data = raw_data.where(table.trading_date < end)
     if market is not None:
-        if type(market) is tuple:
-            raw_data = raw_data.where(table.market_id << market)
-        elif type(market) is str:
+        if isinstance(market, (list, tuple)):
+            market_temp = tuple(market)
+            raw_data = raw_data.where(table.market_id << market_temp)
+        elif isinstance(market, str):
             raw_data = raw_data.where(table.market_id == market)
         else:
             __module_logger.error('Market Parameter Wrong' + market)
@@ -79,8 +83,18 @@ def get_db_daily_price(fields, ticker=None, start=None, end=None, market=None, e
     for record in raw_data:
         rows.append(record)
     df = DataFrame(rows, columns=fields)
-    df = df.set_index('trading_date')
-    return df
+    df = df.set_index(['ticker', 'trading_date'])
+    df_list = list()
+    if len(ticker) > 1:
+        for single_ticker in ticker:
+            df_temp = df.loc[single_ticker]
+            if len(df_temp.columns.values) > 1:
+                df_temp.columns = [single_ticker + '_' + str(each)for each in list(df_temp.columns.values)]
+            df_list.append(df_temp)
+        new_df = concat(df_list, axis=1)
+        return new_df
+    else:
+        return df
 
 
 def get_stock_list():
