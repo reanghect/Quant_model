@@ -136,15 +136,24 @@ class DailyAsset(BaseModel):
     total_market_value = DecimalField(decimal_places=2)
 
 
+class TechIndicator(BaseModel):
+    id = PrimaryKeyField()
+    trading_date = DateField()
+    ticker = CharField(20)
+    shortSMA = DecimalField(decimal_places=2, null=True)
+    longSMA = DecimalField(decimal_places=2, null=True)
+    MACD = DecimalField(decimal_places=2, null=True)
+
+
 def create_tables():
     db.connect()
     db.create_tables([DailyPrice, IntraPrice, TradingDate, StockInfo, Account, OrderInfo, Position, DailyAsset,
-                      Cash, Settlement], True)
+                      Cash, Settlement, TechIndicator], True)
     db.close()
 
 
 def drop_tables():
     db.connect()
     db.drop_tables([DailyPrice, IntraPrice, TradingDate, StockInfo, Account, OrderInfo, Position, DailyAsset,
-                    Cash, Settlement], True)
+                    Cash, Settlement, TechIndicator], True)
     db.close()
